@@ -1,6 +1,7 @@
 # 课酬记 · TutorLedger — App Store 后台文案（中 / 英）
 
-> 对应工程版本：v1.0  
+> 对应工程版本：v1.0.1（已提审）  
+
 > 用途：直接复制到 App Store Connect 各语言「App 信息」与「本地化」栏位。  
 > 字段长度限制：名称 ≤30 字符 · 副标题 ≤30 字符 · 宣传文本 ≤170 字符 · 描述 ≤4000 字符 · 关键词 ≤100 字符（逗号分隔、**不加空格**）。
 
@@ -64,15 +65,13 @@
 家教,课时费,记课,课包,对账,辅导老师,课时记账,家教记账,课后结算,一对一,课酬
 ```
 
-**「此版本的新增内容」（What’s New · v1.0）**
+**「此版本的新增内容」（What’s New · v1.0.1）**
 ```
-欢迎使用课酬记！
-• 添加学生，支持先付课包 / 课后结算 / 按次现结
-• 课后 10 秒记一笔，单价快照与自动扣包 / 挂账
-• 待出账汇总、生成账单、标记已发送 / 已收款
-• 课包购课与扣减流水
-• 首页概览与月度统计
-• CSV 导出备份，数据存本机、无需登录
+本次更新：
+• 作废课时可在「课时流水」和「学生详情」中查看，并显示作废原因
+• 修复系统深色模式下界面错乱，现已固定浅色显示
+• 优化作废课时流程，填写原因后操作更可靠
+• 提升稳定性
 ```
 
 ---
@@ -127,15 +126,13 @@ Privacy Policy: https://github.com/skrhhh/TutorLedger_setting/blob/main/Privacy-
 tutor,tutoring,lesson,billing,pay,package,teacher,invoice,ledger,homeschool,tuition
 ```
 
-**What’s New (v1.0)**
+**What’s New (v1.0.1)**
 ```
-Welcome to TutorLedger!
-• Add students with prepaid, pay-after-class, or per-session billing
-• Log a lesson in seconds with rate snapshots and auto package deduction
-• Pending billing, generate bills, mark sent / paid
-• Package purchase & deduction history
-• Home overview and monthly stats
-• CSV export—data stays on device, no account required
+This update:
+• View voided lessons in Lesson History and student details, including the void reason
+• Fixed Dark Mode layout issues; the app now stays in Light appearance
+• More reliable void-lesson flow
+• Stability improvements
 ```
 
 ---
@@ -165,21 +162,25 @@ Welcome to TutorLedger!
 | --- | --- |
 | 最低系统 | iOS 17.0+ |
 | 设备 | iPhone、iPad |
-| 版本 Version | 1.0.0（与 Xcode MARKETING_VERSION 一致） |
+| 版本 Version | 1.0.1（与 Xcode MARKETING_VERSION 一致） |
 | 构建号 Build | 与 CURRENT_PROJECT_VERSION 一致 |
 
 ---
 
 ## App 隐私问卷（App Privacy / Nutrition Labels）
 
-当前 v1.0：**无自有服务器、无广告 SDK、无分析 / 崩溃 SDK、无账号体系**；学生与课酬数据仅存本机；CSV 仅在用户主动分享时离开设备。
+当前 v1.0.1：无自有服务器、无广告、无账号；学生与课酬数据仅存本机。已接入 **Firebase Analytics + Crashlytics**，须申报第三方采集。
 
 | 问题 | 建议答案 |
 | --- | --- |
-| 是否使用数据跟踪用户 Tracking | **No** |
-| 是否收集数据 Data Collection | **Data Not Collected**（开发者未将数据收集到自身可控的服务器） |
+| 是否使用数据跟踪用户 Tracking | **No**（全类型「用于追踪」均选否） |
+| 是否收集数据 Data Collection | **Yes** |
+| 勾选类型 | 粗略位置、设备 ID、产品交互、其他使用数据、崩溃数据、性能数据、其他诊断数据 |
+| 用途 | Analytics；设备 ID / 使用 / 诊断另加 App Functionality |
+| 是否关联身份 | **Yes** |
+| 年龄能力（Step 1） | 全部 **No** → **4+** |
 
-> 若后续加入 iCloud 同步、广告、分析或账号，须在发版前更新隐私问卷、隐私政策与本文件。
+> 完整选项见 [CHANGELOG.md](./CHANGELOG.md)。若后续加入广告、ATT、登录或 `setUserID`，须重填隐私问卷与隐私政策。
 
 ---
 
@@ -224,7 +225,8 @@ Contact: 735596553@qq.com
 - [ ] 描述末尾或 EULA 字段包含 Terms 链接  
 - [ ] 类别：Productivity + Education  
 - [ ] 年龄：4+  
-- [ ] 隐私：Tracking No · Data Not Collected  
+- [x] 隐私：Tracking No · 已按 Firebase Analytics + Crashlytics 申报  
+
 - [ ] 审核备注粘贴测试路径  
 - [ ] 截图：建议覆盖首页记课入口、记课时页、学生详情、账单、统计（中英各一套或一套通用 UI）  
 - [ ] 确认 GitHub 法律页公开可访问（无需登录）
@@ -241,4 +243,4 @@ Contact: 735596553@qq.com
 
 ---
 
-**Last updated:** 2026-08-03 · v1.0 首发文案
+**Last updated:** 2026-08-26 · v1.0.1 已提审（历史版本见 [CHANGELOG.md](./CHANGELOG.md)）

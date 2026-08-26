@@ -36,6 +36,7 @@ cd TutorLedger && xcodegen generate && pod install
 ## 文档
 
 - [REQUIREMENTS.md](./REQUIREMENTS.md) — 产品需求文档（v1.1）
+- [CHANGELOG.md](./CHANGELOG.md) — 版本记录（含 App Store What’s New / 宣传文本）
 - [APP_STORE_COPY.md](./APP_STORE_COPY.md) — App Store Connect 中英后台文案（可直接粘贴）
 - [../TutorLedger_setting/](../TutorLedger_setting/) — 隐私政策 / 用户协议 / 支持页（App Store 用）
 
