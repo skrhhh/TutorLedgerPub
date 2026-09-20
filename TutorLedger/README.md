@@ -32,6 +32,8 @@ cd TutorLedger && xcodegen generate && pod install
 - [x] 课包购课 / 扣减流水
 - [x] 首页概览 + 月度统计
 - [x] CSV 导出
+- [x] 账单文字复制（v1.0.2）
+- [x] 业务埋点（v1.0.2）
 
 ## 文档
 

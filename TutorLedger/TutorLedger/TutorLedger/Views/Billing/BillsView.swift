@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import UIKit
 
 struct BillsView: View {
     @Query(sort: \Student.name) private var students: [Student]
@@ -615,6 +616,7 @@ struct BillsView: View {
         do {
             shareItems = [try ShareService.temporaryCSVURL(from: csv, filename: filename)]
             showShareSheet = true
+            AnalyticsService.exportCSV(source: "filter")
         } catch {
             shareError = error.localizedDescription
             showShareError = true
@@ -766,6 +768,7 @@ struct BillDetailView: View {
     @State private var paidAt = Date.now
     @State private var errorMessage: String?
     @State private var showError = false
+    @State private var toastMessage: String?
 
     private var sortedLessons: [LessonRecord] {
         bill.lessons.sorted { $0.date > $1.date }
@@ -819,6 +822,14 @@ struct BillDetailView: View {
                     }
 
                     Button {
+                        copyBillText()
+                    } label: {
+                        Label("复制文字给家长", systemImage: "doc.on.doc")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(TLPrimaryButtonStyle())
+
+                    Button {
                         shareBillCSV()
                     } label: {
                         Label("分享 CSV", systemImage: "square.and.arrow.up")
@@ -863,6 +874,7 @@ struct BillDetailView: View {
         } message: {
             Text(errorMessage ?? "")
         }
+        .tlToast($toastMessage)
     }
 
     private func markSent() {
@@ -894,9 +906,15 @@ struct BillDetailView: View {
             let filename = "\(ShareService.safeFilename("\(name)\(billSuffix)"))_\(formatter.string(from: .now)).csv"
             shareItems = [try ShareService.temporaryCSVURL(from: csv, filename: filename)]
             showShareSheet = true
+            AnalyticsService.exportCSV(source: "bill")
         } catch {
             errorMessage = error.localizedDescription
             showError = true
         }
+    }
+
+    private func copyBillText() {
+        UIPasteboard.general.string = ExportService.makeBillShareText(bill: bill)
+        toastMessage = String(localized: "已复制，可粘贴到微信发给家长")
     }
 }

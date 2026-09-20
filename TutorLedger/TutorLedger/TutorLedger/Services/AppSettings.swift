@@ -7,7 +7,12 @@ enum AppSettings {
         static let currencySymbol = "currencySymbol"
         static let lastExportDate = "lastExportDate"
         static let hasCompletedOnboarding = "hasCompletedOnboarding"
+        static let isDemoData = "tl_is_demo_data"
+        static let hasRequestedReview = "tl_has_requested_review"
+        static let backupReminderDismissedAt = "tl_backup_reminder_dismissed_at"
     }
+
+    private static let backupReminderSnoozeDays = 7
 
     static let commonCurrencySymbols = ["¥", "$", "€", "£", "HK$", "NT$", "₩", "S$"]
 
@@ -73,6 +78,21 @@ enum AppSettings {
         set { UserDefaults.standard.set(newValue, forKey: Keys.hasCompletedOnboarding) }
     }
 
+    static var isDemoData: Bool {
+        get { UserDefaults.standard.bool(forKey: Keys.isDemoData) }
+        set { UserDefaults.standard.set(newValue, forKey: Keys.isDemoData) }
+    }
+
+    static var hasRequestedReview: Bool {
+        get { UserDefaults.standard.bool(forKey: Keys.hasRequestedReview) }
+        set { UserDefaults.standard.set(newValue, forKey: Keys.hasRequestedReview) }
+    }
+
+    static var appVersionText: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        return "v\(version)"
+    }
+
     static var lastExportDisplayText: String {
         guard let date = lastExportDate else { return String(localized: "尚未导出") }
         return TLDateFormat.mediumDateTime(date)
@@ -82,6 +102,19 @@ enum AppSettings {
         guard let last = lastExportDate else { return true }
         let days = Calendar.current.dateComponents([.day], from: last, to: .now).day ?? 0
         return days >= 30
+    }
+
+    static var shouldShowHomeBackupReminder: Bool {
+        guard needsBackupReminder else { return false }
+        guard let dismissed = UserDefaults.standard.object(forKey: Keys.backupReminderDismissedAt) as? Date else {
+            return true
+        }
+        let days = Calendar.current.dateComponents([.day], from: dismissed, to: .now).day ?? 0
+        return days >= backupReminderSnoozeDays
+    }
+
+    static func dismissHomeBackupReminder() {
+        UserDefaults.standard.set(Date.now, forKey: Keys.backupReminderDismissedAt)
     }
 
     static var unitPriceLabel: String {

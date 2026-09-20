@@ -4,6 +4,46 @@
 
 ---
 
+## 1.0.2 — 2026-09-20（待提审）
+
+### App Store · What’s New
+
+**简体中文**
+
+```
+本次更新：
+• 账单可一键复制文字，方便发家长微信核对
+• 首页提醒备份，避免换机或重装丢失课酬记录
+• 快速添加「先付课包」学生时需填写节数，避免记下课后才发现课包为 0
+• 新建课包学生会写入购课流水，剩余课时可追溯
+• 设置页显示正确版本号
+• 提升稳定性
+```
+
+**English**
+
+```
+This update:
+• Copy a bill as text to share with parents in chat
+• Home screen backup reminder so records are not lost when changing phones
+• Quick-add prepaid students now require package hours
+• New prepaid students get an opening package record
+• Settings now shows the real app version
+• Stability improvements
+```
+
+### 本版改动
+
+- 账单详情支持复制微信可用的文字摘要
+- 首页在有课时且超过 30 天未备份时提醒导出
+- 记课时快速添加先付学生必须填写课包节数
+- 新建 / 改为先付课包时写入「建档购课」流水
+- 设置页版本号改为读取实际 MARKETING_VERSION
+- 接入 6 个业务埋点：add_student / log_lesson / package_purchase / generate_bill / mark_paid / export_csv（含 billing_mode、is_demo）
+- Crashlytics 写入版本号；记课 5 次或生成账单后请求一次评分
+
+---
+
 ## 1.0.1 — 2026-08-26（已提审）
 
 ### App Store · What’s New

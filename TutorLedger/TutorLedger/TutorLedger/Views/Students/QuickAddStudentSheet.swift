@@ -10,6 +10,7 @@ struct QuickAddStudentSheet: View {
     @State private var name = ""
     @State private var billingMode: BillingMode = .postpaid
     @State private var unitPriceText = "200"
+    @State private var packageHoursText = "10"
     @State private var subjectsText = ""
     @State private var showSubjectsConfirm = false
     @State private var toastMessage: String?
@@ -29,6 +30,13 @@ struct QuickAddStudentSheet: View {
 
         if parsedUnitPriceCents == nil {
             blocked.append(String(localized: "请填写默认单价"))
+        }
+
+        if billingMode == .prepaid {
+            let hours = Int(packageHoursText.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
+            if hours <= 0 {
+                blocked.append(String(localized: "请填写课包节数"))
+            }
         }
 
         if !blocked.isEmpty {
@@ -85,6 +93,11 @@ struct QuickAddStudentSheet: View {
                         TLFormRow(label: String(format: String(localized: "默认单价（%@）"), AppSettings.unitPriceLabel)) {
                             TLTextInput(placeholder: "200", text: $unitPriceText, keyboard: .decimalPad)
                         }
+                        if billingMode == .prepaid {
+                            TLFormRow(label: String(localized: "课包节数")) {
+                                TLTextInput(placeholder: "10", text: $packageHoursText, keyboard: .numberPad)
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -121,17 +134,35 @@ struct QuickAddStudentSheet: View {
             .map { String($0) }
 
         let unitCents = parsedUnitPriceCents ?? MoneyFormat.yuanToCents(Decimal(200))
+        let packageHours = billingMode == .prepaid
+            ? (Int(packageHoursText.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0)
+            : 0
 
         let student = Student(
             name: trimmedName,
             subjects: subjects,
             billingMode: billingMode,
-            defaultUnitPriceCents: unitCents
+            defaultUnitPriceCents: unitCents,
+            packageTotalHours: packageHours,
+            packageRemainingHours: packageHours
         )
         modelContext.insert(student)
-        try? modelContext.save()
-        onCreated(student)
-        dismiss()
+        if BillingService.insertOpeningPackage(student: student, hours: packageHours, context: modelContext) != nil {
+            AnalyticsService.packagePurchase(hours: packageHours, source: "opening", hasAmount: false)
+        }
+        do {
+            try modelContext.save()
+            AnalyticsService.addStudent(
+                billingMode: billingMode,
+                source: "quick_add",
+                packageHours: packageHours
+            )
+            onCreated(student)
+            dismiss()
+        } catch {
+            toastMessage = error.localizedDescription
+            AnalyticsService.recordError(error, context: "quick_add_student")
+        }
     }
 
     private var parsedUnitPriceCents: Int? {

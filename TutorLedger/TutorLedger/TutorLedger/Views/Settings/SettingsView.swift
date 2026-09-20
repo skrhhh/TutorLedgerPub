@@ -45,7 +45,7 @@ struct SettingsView: View {
                                     .foregroundStyle(TLColors.secondaryText)
                             }
                             Spacer()
-                            Text("v1.0")
+                            Text(AppSettings.appVersionText)
                                 .font(.caption)
                                 .foregroundStyle(TLColors.secondaryText)
                                 .padding(.horizontal, 10)
@@ -118,6 +118,20 @@ struct SettingsView: View {
                                 }
                             }
                         }
+
+                        #if DEBUG
+                        TLFormCard(title: String(localized: "演示数据"), icon: "hammer.fill") {
+                            Button("填入本月演示流水") {
+                                DemoSeed.populate(context: modelContext, reset: true)
+                            }
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(TLColors.teal)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            Text("会清空当前学生后写入本月虚构课时，仅调试包可用。")
+                                .font(.caption)
+                                .foregroundStyle(TLColors.secondaryText)
+                        }
+                        #endif
 
                         TLFormCard(title: String(localized: "数据"), icon: "externaldrive") {
                             TLDetailRow(
@@ -241,6 +255,7 @@ struct SettingsView: View {
             let url = try ShareService.temporaryCSVURL(from: csv)
             shareItems = [url]
             showShareSheet = true
+            AnalyticsService.exportCSV(source: "settings")
         } catch {
             exportError = error.localizedDescription
             showExportError = true

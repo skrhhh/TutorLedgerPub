@@ -11,6 +11,12 @@ struct HomeView: View {
     @State private var logLessonStudent: Student?
     @State private var showPurchase = false
     @State private var purchaseStudent: Student?
+    @State private var showAllLessons = DemoLaunch.openLessons
+    @State private var showShareSheet = false
+    @State private var shareItems: [Any] = []
+    @State private var exportError: String?
+    @State private var showExportError = false
+    @State private var backupReminderVisible = AppSettings.shouldShowHomeBackupReminder
 
     private var recentLessons: [LessonRecord] {
         allLessons.filter { $0.billingStatus != .void }.prefix(8).map { $0 }
@@ -29,6 +35,10 @@ struct HomeView: View {
             ) {
                 ScrollView {
                     VStack(spacing: 16) {
+                        if backupReminderVisible, !allLessons.isEmpty {
+                            backupReminderCard
+                        }
+
                         Button { logLessonStudent = nil; showLogLesson = true } label: {
                             HStack(spacing: 12) {
                                 Image(systemName: "plus.circle.fill")
@@ -184,7 +194,13 @@ struct HomeView: View {
                 }
                 .tlKeyboardDismissibleScroll()
             }
-            .onAppear { refreshStats() }
+            .navigationDestination(isPresented: $showAllLessons) {
+                LessonsListView()
+            }
+            .onAppear {
+                backupReminderVisible = AppSettings.shouldShowHomeBackupReminder
+                refreshStats()
+            }
             .onChange(of: lessonFingerprint) { _, _ in refreshStats() }
             .sheet(isPresented: $showLogLesson) {
                 LogLessonView(preselectedStudent: logLessonStudent)
@@ -194,6 +210,69 @@ struct HomeView: View {
                     PackagePurchaseView(student: purchaseStudent)
                 }
             }
+            .activityShareSheet(isPresented: $showShareSheet, items: shareItems) { completed in
+                if completed {
+                    AppSettings.lastExportDate = .now
+                    backupReminderVisible = AppSettings.shouldShowHomeBackupReminder
+                }
+            }
+            .alert("导出失败", isPresented: $showExportError) {
+                Button("好的", role: .cancel) {}
+            } message: {
+                Text(exportError ?? "")
+            }
+        }
+    }
+
+    private var backupReminderCard: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(TLColors.pending)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("建议备份数据")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(TLColors.primaryText)
+                Text("数据只在本机。换机或重装前请先导出 CSV。")
+                    .font(.caption)
+                    .foregroundStyle(TLColors.secondaryText)
+                Button("导出") { exportBackup() }
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(TLColors.breezeGradient)
+                    .clipShape(Capsule())
+                    .buttonStyle(.plain)
+            }
+            Spacer(minLength: 0)
+            Button {
+                AppSettings.dismissHomeBackupReminder()
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    backupReminderVisible = false
+                }
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(TLColors.secondaryText)
+                    .padding(6)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(localized: "关闭备份提醒"))
+        }
+        .tlCard(padding: 14)
+    }
+
+    private func exportBackup() {
+        do {
+            let csv = try ExportService.makeCSV(context: modelContext)
+            shareItems = [try ShareService.temporaryCSVURL(from: csv)]
+            showShareSheet = true
+            AnalyticsService.exportCSV(source: "home")
+        } catch {
+            exportError = error.localizedDescription
+            showExportError = true
+            AnalyticsService.recordError(error, context: "home_export")
         }
     }
 

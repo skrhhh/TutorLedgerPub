@@ -63,6 +63,29 @@ enum ExportService {
         return lines.joined(separator: "\n")
     }
 
+    static func makeBillShareText(bill: Bill) -> String {
+        let studentName = bill.student?.name ?? String(localized: "学生")
+        let lessons = bill.lessons.sorted { $0.date < $1.date }
+        var lines: [String] = [
+            String(localized: "【课酬记】\(studentName)"),
+            String(localized: "账期：\(bill.periodTitle)"),
+            String(localized: "共 \(lessons.count) 节 · 合计 \(MoneyFormat.display(cents: bill.totalAmountCents))")
+        ]
+        if !bill.note.isEmpty {
+            lines.append(String(format: String(localized: "备注：%@"), bill.note))
+        }
+        lines.append("")
+        lines.append(String(localized: "明细："))
+        for lesson in lessons {
+            lines.append(
+                "\(TLDateFormat.monthDay(lesson.date))  \(lesson.subject)  \(MoneyFormat.display(hours: lesson.durationHours))  \(MoneyFormat.display(cents: lesson.amountCents))"
+            )
+        }
+        lines.append("")
+        lines.append(String(localized: "请核对后转账，谢谢。"))
+        return lines.joined(separator: "\n")
+    }
+
     static func makeBillCSV(bill: Bill) -> String {
         var lines: [String] = []
         let studentName = bill.student?.name ?? String(localized: "学生")

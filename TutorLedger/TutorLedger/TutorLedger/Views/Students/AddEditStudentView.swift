@@ -182,6 +182,8 @@ struct AddEditStudentView: View {
 
         let unitCents = parsedUnitPriceCents ?? 0
         let packageHours = Int(packageHoursText.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
+        let isCreating = student == nil
+        var recordedOpeningHours = 0
 
         if let student {
             let wasPrepaid = student.billingMode == .prepaid
@@ -199,9 +201,12 @@ struct AddEditStudentView: View {
             if billingMode == .prepaid, !wasPrepaid || student.packageTotalHours == 0 {
                 student.packageTotalHours = packageHours
                 student.packageRemainingHours = packageHours
+                if student.packageTransactions.isEmpty {
+                    BillingService.insertOpeningPackage(student: student, hours: packageHours, context: modelContext)
+                }
             }
         } else {
-            modelContext.insert(Student(
+            let created = Student(
                 name: trimmedName,
                 grade: grade,
                 subjects: subjects,
@@ -214,14 +219,33 @@ struct AddEditStudentView: View {
                 note: note,
                 nextLessonAt: hasNextLesson ? nextLessonAt : nil,
                 defaultDurationHours: defaultDurationHours
-            ))
+            )
+            modelContext.insert(created)
+            if BillingService.insertOpeningPackage(student: created, hours: packageHours, context: modelContext) != nil {
+                recordedOpeningHours = packageHours
+            }
         }
 
         do {
             try modelContext.save()
+            if isCreating {
+                AnalyticsService.addStudent(
+                    billingMode: billingMode,
+                    source: "form",
+                    packageHours: billingMode == .prepaid ? packageHours : 0
+                )
+                if recordedOpeningHours > 0 {
+                    AnalyticsService.packagePurchase(
+                        hours: recordedOpeningHours,
+                        source: "opening",
+                        hasAmount: false
+                    )
+                }
+            }
             dismiss()
         } catch {
             toastMessage = error.localizedDescription
+            AnalyticsService.recordError(error, context: "save_student")
         }
     }
 

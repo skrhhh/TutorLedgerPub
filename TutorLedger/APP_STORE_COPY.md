@@ -1,6 +1,6 @@
 # 课酬记 · TutorLedger — App Store 后台文案（中 / 英）
 
-> 对应工程版本：v1.0.1（已提审）  
+> 对应工程版本：v1.0.2（待提审）  
 
 > 用途：直接复制到 App Store Connect 各语言「App 信息」与「本地化」栏位。  
 > 字段长度限制：名称 ≤30 字符 · 副标题 ≤30 字符 · 宣传文本 ≤170 字符 · 描述 ≤4000 字符 · 关键词 ≤100 字符（逗号分隔、**不加空格**）。
@@ -65,12 +65,14 @@
 家教,课时费,记课,课包,对账,辅导老师,课时记账,家教记账,课后结算,一对一,课酬
 ```
 
-**「此版本的新增内容」（What’s New · v1.0.1）**
+**「此版本的新增内容」（What’s New · v1.0.2）**
 ```
 本次更新：
-• 作废课时可在「课时流水」和「学生详情」中查看，并显示作废原因
-• 修复系统深色模式下界面错乱，现已固定浅色显示
-• 优化作废课时流程，填写原因后操作更可靠
+• 账单可一键复制文字，方便发家长微信核对
+• 首页提醒备份，避免换机或重装丢失课酬记录
+• 快速添加「先付课包」学生时需填写节数，避免记下课后才发现课包为 0
+• 新建课包学生会写入购课流水，剩余课时可追溯
+• 设置页显示正确版本号
 • 提升稳定性
 ```
 
@@ -126,12 +128,14 @@ Privacy Policy: https://github.com/skrhhh/TutorLedger_setting/blob/main/Privacy-
 tutor,tutoring,lesson,billing,pay,package,teacher,invoice,ledger,homeschool,tuition
 ```
 
-**What’s New (v1.0.1)**
+**What’s New (v1.0.2)**
 ```
 This update:
-• View voided lessons in Lesson History and student details, including the void reason
-• Fixed Dark Mode layout issues; the app now stays in Light appearance
-• More reliable void-lesson flow
+• Copy a bill as text to share with parents in chat
+• Home screen backup reminder so records are not lost when changing phones
+• Quick-add prepaid students now require package hours
+• New prepaid students get an opening package record
+• Settings now shows the real app version
 • Stability improvements
 ```
 
@@ -162,7 +166,7 @@ This update:
 | --- | --- |
 | 最低系统 | iOS 17.0+ |
 | 设备 | iPhone、iPad |
-| 版本 Version | 1.0.1（与 Xcode MARKETING_VERSION 一致） |
+| 版本 Version | 1.0.2（与 Xcode MARKETING_VERSION 一致） |
 | 构建号 Build | 与 CURRENT_PROJECT_VERSION 一致 |
 
 ---
@@ -243,4 +247,4 @@ Contact: 735596553@qq.com
 
 ---
 
-**Last updated:** 2026-08-26 · v1.0.1 已提审（历史版本见 [CHANGELOG.md](./CHANGELOG.md)）
+**Last updated:** 2026-09-20 · v1.0.2 待提审（历史版本见 [CHANGELOG.md](./CHANGELOG.md)）

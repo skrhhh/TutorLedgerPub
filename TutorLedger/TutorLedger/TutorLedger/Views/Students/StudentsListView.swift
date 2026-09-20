@@ -7,6 +7,7 @@ struct StudentsListView: View {
     @State private var filter: StudentStatus? = .active
     @State private var searchText = ""
     @State private var showAddStudent = false
+    @State private var showDemoStudent = false
 
     private var filteredStudents: [Student] {
         var result: [Student]
@@ -81,6 +82,17 @@ struct StudentsListView: View {
                         }
                         .tlKeyboardDismissibleScroll()
                     }
+                }
+            }
+            .navigationDestination(isPresented: $showDemoStudent) {
+                if let name = DemoLaunch.openStudent,
+                   let student = students.first(where: { $0.name == name }) {
+                    StudentDetailView(student: student)
+                }
+            }
+            .onAppear {
+                if DemoLaunch.openStudent != nil, !students.isEmpty {
+                    showDemoStudent = true
                 }
             }
             .sheet(isPresented: $showAddStudent) {

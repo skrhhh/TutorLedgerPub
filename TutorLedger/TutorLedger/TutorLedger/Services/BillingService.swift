@@ -78,6 +78,12 @@ enum BillingService {
         }
 
         try context.save()
+        AnalyticsService.logLesson(
+            billingMode: student.billingMode,
+            lessonType: lessonType,
+            paidImmediately: markPaidImmediately
+        )
+        AppReviewPrompt.askIfEligible(lessonCount: recordedLessonCount(context: context))
         return record
     }
 
@@ -165,6 +171,11 @@ enum BillingService {
         record.updatedAt = .now
         record.student?.updatedAt = .now
         try context.save()
+        AnalyticsService.markPaid(
+            source: "lesson",
+            billingMode: record.student?.billingMode,
+            paymentMethod: paymentMethod
+        )
     }
 
     @discardableResult
@@ -192,6 +203,28 @@ enum BillingService {
         )
         context.insert(transaction)
         try context.save()
+        AnalyticsService.packagePurchase(
+            hours: hours,
+            source: "renewal",
+            hasAmount: amountCents != nil
+        )
+        return transaction
+    }
+
+    @discardableResult
+    static func insertOpeningPackage(
+        student: Student,
+        hours: Int,
+        context: ModelContext
+    ) -> PackageTransaction? {
+        guard student.billingMode == .prepaid, hours > 0 else { return nil }
+        let transaction = PackageTransaction(
+            type: .purchase,
+            hours: hours,
+            note: "建档购课 \(hours) 节",
+            student: student
+        )
+        context.insert(transaction)
         return transaction
     }
 
@@ -231,6 +264,14 @@ enum BillingService {
 
         student.updatedAt = .now
         try context.save()
+        AnalyticsService.generateBill(
+            billingMode: student.billingMode,
+            lessonCount: pendingLessons.count
+        )
+        AppReviewPrompt.askIfEligible(
+            lessonCount: recordedLessonCount(context: context),
+            justCreatedBill: true
+        )
         return bill
     }
 
@@ -261,6 +302,11 @@ enum BillingService {
 
         bill.student?.updatedAt = .now
         try context.save()
+        AnalyticsService.markPaid(
+            source: "bill",
+            billingMode: bill.student?.billingMode,
+            paymentMethod: paymentMethod
+        )
     }
 
     static func cancelBill(_ bill: Bill, context: ModelContext) throws {
@@ -280,6 +326,10 @@ enum BillingService {
     static func deleteStudent(_ student: Student, context: ModelContext) throws {
         context.delete(student)
         try context.save()
+    }
+
+    private static func recordedLessonCount(context: ModelContext) -> Int {
+        (try? context.fetchCount(FetchDescriptor<LessonRecord>())) ?? 0
     }
 }
 

@@ -5,6 +5,15 @@ struct TutorLedgerApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     private let bootstrap = AppModelContainerBootstrap.load()
 
+    init() {
+        if DemoLaunch.skipOnboarding {
+            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+        }
+        if case .ready(let container, _) = bootstrap, DemoLaunch.shouldSeed {
+            DemoSeed.populate(container: container, reset: DemoLaunch.shouldReset)
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             TutorLedgerRootView(bootstrap: bootstrap)
@@ -15,13 +24,13 @@ struct TutorLedgerApp: App {
 
 struct TutorLedgerRootView: View {
     let bootstrap: AppModelContainerBootstrap
-    @State private var showLaunchAnimation = true
+    @State private var showLaunchAnimation = !DemoLaunch.skipLaunch
 
     var body: some View {
         switch bootstrap {
         case .ready(let container, let isInMemoryFallback):
             ZStack {
-                ContentView(isAppReady: !showLaunchAnimation)
+                ContentView(isAppReady: !showLaunchAnimation || DemoLaunch.skipLaunch)
                     .installKeyboardDismissOnTap()
                     .safeAreaInset(edge: .top, spacing: 0) {
                         if isInMemoryFallback {
@@ -74,7 +83,7 @@ struct ContentView: View {
     var isAppReady: Bool = true
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @State private var selectedTab: TLTab = .home
+    @State private var selectedTab: TLTab = DemoLaunch.tab ?? .home
 
     private var showOnboarding: Bool {
         isAppReady && !hasCompletedOnboarding

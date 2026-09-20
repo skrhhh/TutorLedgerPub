@@ -1,4 +1,5 @@
 import FirebaseCore
+import FirebaseCrashlytics
 import UIKit
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
@@ -7,6 +8,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        Crashlytics.crashlytics().setCustomValue(version, forKey: "app_version")
         return true
     }
 }
